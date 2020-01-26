@@ -21,7 +21,6 @@ case class MovieDataService @Inject()(ws: WSClient) {
     val url = link.withQuery(query)
     val request: WSRequest = ws.url(url.toString)
 
-    println(url.toString)
     request.get().map(_.json)
   }
 }
