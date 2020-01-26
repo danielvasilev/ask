@@ -6,7 +6,8 @@ import play.api.libs.ws._
 import play.api.mvc._
 
 import model.search.SearchTerms
-import model.services.MovieDataService
+import model.services.data.Movie
+import model.services.{MovieDataService, ServiceRequestExecutor}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.global
@@ -17,10 +18,11 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
     implicit val ex: ExecutionContext = global
 
     val movieDataService = MovieDataService(ws)
-    val searchResults = movieDataService.search(searchTerms)
+    val searchRequest = movieDataService.search(searchTerms)
+    val serviceRequestExecutor = ServiceRequestExecutor[Movie](searchRequest, Movie.fromJson).execute
 
-    searchResults.map { response =>
-      Ok(views.html.searchPage(response.toString))
+    serviceRequestExecutor.map { response =>
+      Ok(views.html.searchPage(response))
     }
   }
 }

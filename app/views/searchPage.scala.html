@@ -1,4 +1,4 @@
-@import model.search.SearchTerms
-@(response: String)
+@import  model.services.data.Movie
+@(movie: Movie)
 
-@response
+<p>Title: @movie.title</p>
