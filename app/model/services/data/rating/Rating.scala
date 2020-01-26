@@ -6,7 +6,7 @@ import play.api.libs.json.{Reads, _}
 trait Rating {
   val source: String
   val value: String
-  val numericValue: Double
+  val numericValue: Int
 }
 
 object Rating {
