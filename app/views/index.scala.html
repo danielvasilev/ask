@@ -1,5 +1,13 @@
 @()
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play!</h1>
+@main("Movie search") {
+<h3>Enter movie search terms</h3>
+<form action="/search">
+    <p>
+        <input type="text" name="SearchTerms" value="Search terms here">
+    </p>
+    <p>
+        <input type="submit" value="Submit">
+    </p>
+</form>
 }
