@@ -19,7 +19,7 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
 
     val movieDataService = MovieDataService(ws)
     val searchRequest = movieDataService.search(searchTerms)
-    val serviceRequestExecutor = ServiceRequestExecutor[Movie](searchRequest, Movie.fromJson).execute
+    val serviceRequestExecutor = ServiceRequestExecutor[Movie](searchRequest).execute(Movie.fromJson)
 
     serviceRequestExecutor.map { response =>
       Ok(views.html.searchPage(response))
