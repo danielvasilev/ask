@@ -3,7 +3,11 @@ package model.services.data
 import play.api.libs.json.{Reads, __}
 import play.api.libs.functional.syntax._
 
-case class Movie(name: String, Year: String, plot: String, ratings: Seq[Rating])
+import model.services.data.rating.Rating
+
+case class Movie(name: String, Year: String, plot: String, ratings: Seq[Rating]) {
+  def defaultRating: Int = ???
+}
 
 object Movie {
   implicit val read: Reads[Movie] = {
