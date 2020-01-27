@@ -1,5 +1,6 @@
 package model.services.data
 
+import akka.http.scaladsl.model.Uri
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsValue, Reads, __}
 
@@ -12,6 +13,8 @@ class Movie(val title: String, val year: String, val plot: String, val country: 
     case Nil => 0
     case _ => ratings.map(_.numericValue).sum / ratings.size
   }
+
+  val nextSearchLink: String = Uri("/search").withQuery(Uri.Query(Map(("SearchTerms", title)))).toString
 }
 
 object Movie {
