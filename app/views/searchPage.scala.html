@@ -1,4 +1,4 @@
 @import  model.services.data.Movie
-@(movie: Movie)
+@(movies: Seq[Movie])
 
-<p>Title: @movie.title</p>
+<p>Titles: @movies.zipWithIndex.map { case (movie, i) => <p><span>@(i + 1)</span>&nbsp;<span>"@movie.title"</span>&nbsp;<span>[@movie.defaultRating]</span>&nbsp;<span>(@movie.year)</span></p>}</p>

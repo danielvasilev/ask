@@ -7,7 +7,7 @@ import model.services.data.rating.Rating
 
 import scala.util.Try
 
-class Movie(val title: String, val Year: String, val plot: String, val ratings: Seq[Rating]) {
+class Movie(val title: String, val year: String, val plot: String, val ratings: Seq[Rating]) {
   def defaultRating: Int = ratings.map(_.numericValue).sum / ratings.size
 }
 
@@ -22,9 +22,7 @@ object Movie {
         (__ \ "Ratings").read[List[Rating]]) (Movie.apply _)
   }
 
-  def fromJson: JsValue => Movie = { json => Try(json.as[Movie]).getOrElse(empty) }
-
-  val empty = EmptyMovie()
+  def fromJson: JsValue => Movie = { json => Try(json.as[Movie]).getOrElse(EmptyMovie) }
 }
 
-case class EmptyMovie() extends Movie("", "", "", Nil)
+object EmptyMovie extends Movie("", "", "", Nil)
