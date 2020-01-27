@@ -1,2 +1,2 @@
-# how to raun:
+# how to run:
 sbt run
