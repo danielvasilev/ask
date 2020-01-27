@@ -6,8 +6,7 @@ import play.api.libs.ws.WSRequest
 import scala.concurrent.{ExecutionContext, Future}
 
 case class ServiceRequestExecutor[T](request: WSRequest)(implicit ec: ExecutionContext) {
-  def execute(f: JsValue => T, logRequest: Boolean = false)(implicit reads: Reads[T]): Future[T] = {
-    if (logRequest) println("Making initial movie request: " + request.uri.toString)
+  def execute(f: JsValue => T)(implicit reads: Reads[T]): Future[T] = {
     request.get().map(_.json).map(json => f(json))
   }
 }
