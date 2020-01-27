@@ -25,7 +25,7 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
     val searchRequest = movieDataService.search(searchTerms)
     val serviceRequestExecutor = ServiceRequestExecutor[Movie](searchRequest).execute(Movie.fromJson)
     serviceRequestExecutor.flatMap {
-      case EmptyMovie => Future.successful(Ok(views.html.index(s"Nor results for [${searchTerms.toString}], try other search terms.")))
+      case EmptyMovie => Future.successful(Ok(views.html.index(s"No results for [${searchTerms.toString}], try other search terms.")))
       case response: Movie =>
         val plotWords = response.plot.split(" ").filterNot(_.containsSpecialCharacters)
         val relatedSearchTerms = getRelatedSearchTerms(plotWords, Nil)
