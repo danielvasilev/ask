@@ -27,7 +27,7 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
     serviceRequestExecutor.flatMap {
       case EmptyMovie => Future.successful(Ok(views.html.index(s"[${searchTerms.toString}] is a dead end, try other search terms.")))
       case response: Movie =>
-        val plotWords = response.plot.split(" ").filterNot(_.containsSpecialCharacters)
+        val plotWords = response.plot.split(" ").filterNot(_.containsSpecialCharacters) :+ response.country
         val relatedSearchTerms = getRelatedSearchTerms(plotWords, Nil)
         val relatedMoviesFutures = relatedSearchTerms.map { relatedTerms =>
           val relatedSearchRequest = movieDataService.search(relatedTerms)
