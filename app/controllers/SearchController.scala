@@ -5,14 +5,14 @@ import javax.inject._
 import play.api.libs.ws._
 import play.api.mvc._
 
+import model.Utils.StringUtils
 import model.search.SearchTerms
-import model.services.data.{EmptyMovie, Movie}
+import model.services.data.Movie
+import model.services.data.Movie.EmptyMovie
 import model.services.{MovieDataService, ServiceRequestExecutor}
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.global
-import model.Utils.StringUtils
-
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 
@@ -36,7 +36,7 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
         }
         val moviesResult = Future.sequence(relatedMoviesFutures).map(_ :+ response)
         moviesResult.map { response =>
-          Ok(views.html.searchPage(response.sortBy(_.defaultRating).reverse))
+          Ok(views.html.searchPage(response.filterNot(_ == EmptyMovie).sortBy(_.defaultRating).reverse))
         }
     }
   }
@@ -45,8 +45,9 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
     if (acc.length == length || plotWords.isEmpty)
       acc
     else {
-      val randomIndex = Random.between(0, plotWords.length - 1)
-      val searchTerms = plotWords(randomIndex)
+      def randomIndex = Random.between(0, plotWords.length - 1)
+
+      val searchTerms = Seq(plotWords(randomIndex), plotWords(randomIndex))
       getRelatedSearchTerms(plotWords, (acc :+ SearchTerms(searchTerms)).distinct)
     }
   }

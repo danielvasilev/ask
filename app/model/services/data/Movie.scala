@@ -28,6 +28,6 @@ object Movie {
   }
 
   def fromJson: JsValue => Movie = { json => Try(json.as[Movie]).getOrElse(EmptyMovie) }
-}
 
-object EmptyMovie extends Movie("", "", "", "", Nil)
+  object EmptyMovie extends Movie("", "", "", "", Nil)
+}
