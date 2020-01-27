@@ -2,3 +2,4 @@
 @(movies: Seq[Movie])
 
 <p>Titles: @movies.zipWithIndex.map { case (movie, i) => <p><span>@(i + 1)</span>&nbsp;<span><a href="@movie.nextSearchLink">"@movie.title"</a></span>&nbsp;<span>[@movie.defaultRating]</span>&nbsp;<span>(@movie.year)</span></p>}</p>
+<p><a href="/">back to the search page</a></p>
