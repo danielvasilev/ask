@@ -36,19 +36,20 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
         }
         val moviesResult = Future.sequence(relatedMoviesFutures).map(_ :+ response)
         moviesResult.map { response =>
-          Ok(views.html.searchPage(response.filterNot(_ == EmptyMovie).sortBy(_.defaultRating).reverse))
+          Ok(views.html.searchPage(response.filterNot(_ == EmptyMovie).distinctBy(_.title).sortBy(_.defaultRating).reverse))
         }
     }
   }
 
-  private def getRelatedSearchTerms(plotWords: Array[String], acc: List[SearchTerms], length: Int = 9): Seq[SearchTerms] = {
-    if (acc.length == length || plotWords.isEmpty)
+  private def getRelatedSearchTerms(plotWords: Array[String], acc: List[SearchTerms], length: Int = 9, cycles: Int = 99): Seq[SearchTerms] = {
+    if (acc.length == length || plotWords.isEmpty || cycles == 0)
       acc
     else {
-      def randomIndex = Random.between(0, plotWords.length - 1)
+      def randomIndex = Random.between(0, plotWords.length)
 
-      val searchTerms = Seq(plotWords(randomIndex), plotWords(randomIndex))
-      getRelatedSearchTerms(plotWords, (acc :+ SearchTerms(searchTerms)).distinct)
+      val randomNumberTerms = Random.between(1, 3)
+      val searchTerms = Seq(plotWords(randomIndex), plotWords(randomIndex)).take(randomNumberTerms).sorted
+      getRelatedSearchTerms(plotWords, (acc :+ SearchTerms(searchTerms)).distinct, cycles = cycles - 1)
     }
   }
 }
