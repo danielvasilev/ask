@@ -23,7 +23,7 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
 
     val movieDataService = MovieDataService(ws)
     val searchRequest = movieDataService.search(searchTerms)
-    val serviceRequestExecutor = ServiceRequestExecutor[Movie](searchRequest).execute(Movie.fromJson)
+    val serviceRequestExecutor = ServiceRequestExecutor[Movie](searchRequest).execute(Movie.fromJson, true)
     serviceRequestExecutor.flatMap {
       case EmptyMovie => Future.successful(Ok(views.html.index(s"[${searchTerms.toString}] is a dead end, try other search terms.")))
       case response: Movie =>
