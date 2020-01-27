@@ -1,7 +1,7 @@
-@()
+@(description: String)
 
 @main("Movie search") {
-<h3>Enter movie search terms</h3>
+<h3>@description</h3>
 <form action="/search">
     <p>
         <input type="text" name="SearchTerms" value="Search terms here">

@@ -3,7 +3,9 @@ package model.search
 import play.api.mvc.QueryStringBindable
 import model.Utils.StringUtils
 
-case class SearchTerms(value: Seq[String]) extends AnyVal
+case class SearchTerms(value: Seq[String]) extends AnyVal {
+  override def toString: String = value.mkString(" ")
+}
 
 object SearchTerms {
   def apply(string: String): SearchTerms = {
