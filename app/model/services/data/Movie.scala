@@ -6,8 +6,6 @@ import play.api.libs.json.{JsValue, Reads, __}
 
 import model.services.data.rating.Rating
 
-import scala.util.Try
-
 class Movie(val title: String, val year: String, val plot: String, val country: String, val ratings: Seq[Rating]) {
   def defaultRating: Int = ratings match {
     case Nil => 0
@@ -30,7 +28,7 @@ object Movie {
       ) (Movie.apply _)
   }
 
-  def fromJson: JsValue => Movie = { json => Try(json.as[Movie]).getOrElse(EmptyMovie) }
+  def fromJson: JsValue => Movie = { json => json.asOpt[Movie].getOrElse(EmptyMovie) }
 
   object EmptyMovie extends Movie("", "", "", "", Nil)
 }

@@ -23,25 +23,28 @@ class SearchController @Inject()(val controllerComponents: ControllerComponents,
 
     val movieDataService = MovieDataService(ws)
     val searchRequest = movieDataService.search(searchTerms)
-    val serviceRequestExecutor = ServiceRequestExecutor[Movie](searchRequest).execute(Movie.fromJson)
-    serviceRequestExecutor.flatMap {
+    val serviceResponse = ServiceRequestExecutor[Movie](searchRequest).execute(Movie.fromJson)
+    serviceResponse.flatMap {
       case EmptyMovie => Future.successful(Ok(views.html.index(s"[${searchTerms.toString}] is a dead end, try other search terms.")))
-      case response: Movie =>
-        val plotWords = response.plot.split(" ").filterNot(_.containsSpecialCharacters) :+ response.country
-        val relatedSearchTerms = getRelatedSearchTerms(plotWords, Nil)
-        val relatedMoviesFutures = relatedSearchTerms.map { relatedTerms =>
-          val relatedSearchRequest = movieDataService.search(relatedTerms)
-          val relatedMoviesRequestExecutor = ServiceRequestExecutor[Movie](relatedSearchRequest).execute(Movie.fromJson)
-          relatedMoviesRequestExecutor
-        }
-        val moviesResult = Future.sequence(relatedMoviesFutures).map(_ :+ response)
-        moviesResult.map { response =>
-          Ok(views.html.searchPage(response.filterNot(_ == EmptyMovie).distinctBy(_.title).sortBy(_.defaultRating).reverse))
-        }
+      case response: Movie => movieResult(response, movieDataService)
     }
   }
 
-  private def getRelatedSearchTerms(plotWords: Array[String], acc: List[SearchTerms], length: Int = 9, cycles: Int = 99): Seq[SearchTerms] = {
+  private def movieResult(responseMovie: Movie, movieDataService: MovieDataService)(implicit ec: ExecutionContext): Future[Result] = {
+    val plotWords = responseMovie.plot.split(" ").filterNot(_.containsSpecialCharacters) :+ responseMovie.country
+    val relatedSearchTerms = getRelatedSearchTerms(plotWords)
+    val relatedMoviesFutures = relatedSearchTerms.map { relatedTerms =>
+      val relatedSearchRequest = movieDataService.search(relatedTerms)
+      ServiceRequestExecutor[Movie](relatedSearchRequest).execute(Movie.fromJson)
+    }
+    val moviesResult = Future.sequence(relatedMoviesFutures).map(_ :+ responseMovie)
+    moviesResult.map { response =>
+      val moviesToRender = response.filterNot(_ == EmptyMovie).distinctBy(_.title).sortBy(_.defaultRating)(Ordering.Int.reverse)
+      Ok(views.html.searchPage(moviesToRender))
+    }
+  }
+
+  private def getRelatedSearchTerms(plotWords: Array[String], acc: List[SearchTerms] = Nil, length: Int = 9, cycles: Int = 99): Seq[SearchTerms] = {
     if (acc.length == length || plotWords.isEmpty || cycles == 0)
       acc
     else {
