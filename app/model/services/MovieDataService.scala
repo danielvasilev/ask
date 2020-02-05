@@ -10,6 +10,7 @@ import model.search.SearchTerms
 import model.services.data.Movie
 import model.services.data.Movie.EmptyMovie
 
+import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
@@ -38,15 +39,16 @@ case class MovieDataService @Inject()(ws: WSClient) {
     }
   }
 
-  private def getRelatedSearchTerms(plotWords: Array[String], acc: List[SearchTerms] = Nil, length: Int = 9, cycles: Int = 99): Seq[SearchTerms] = {
-    if (acc.length == length || plotWords.isEmpty || cycles == 0)
+  @tailrec
+  private def getRelatedSearchTerms(plotWords: Array[String], acc: List[SearchTerms] = Nil, searchTermsLimit: Int = 9, maxTries: Int = 99): Seq[SearchTerms] = {
+    if (acc.length == searchTermsLimit || plotWords.isEmpty || maxTries == 0)
       acc
     else {
       def randomIndex = Random.between(0, plotWords.length)
 
       val randomNumberTerms = Random.between(1, 3)
       val searchTerms = Seq(plotWords(randomIndex), plotWords(randomIndex)).take(randomNumberTerms).sorted
-      getRelatedSearchTerms(plotWords, (acc :+ SearchTerms(searchTerms)).distinct, cycles = cycles - 1)
+      getRelatedSearchTerms(plotWords, (acc :+ SearchTerms(searchTerms)).distinct, maxTries = maxTries - 1)
     }
   }
 }

@@ -6,7 +6,7 @@ import play.api.libs.json.{JsValue, Reads, __}
 
 import model.services.data.rating.Rating
 
-class Movie(val title: String, val year: String, val plot: String, val country: String, val ratings: Seq[Rating]) {
+case class Movie(title: String, year: String, plot: String, country: String, ratings: Seq[Rating]) {
   def defaultRating: Int = ratings match {
     case Nil => 0
     case _ => ratings.map(_.numericValue).sum / ratings.size
@@ -16,8 +16,6 @@ class Movie(val title: String, val year: String, val plot: String, val country: 
 }
 
 object Movie {
-  def apply(title: String, Year: String, plot: String, country: String, ratings: Seq[Rating]) = new Movie(title, Year, plot, country, ratings)
-
   implicit val read: Reads[Movie] = {
     (
       (__ \ "Title").readNullable[String].map(_.getOrElse("")) and
@@ -30,5 +28,5 @@ object Movie {
 
   def fromJson: JsValue => Movie = { json => json.asOpt[Movie].getOrElse(EmptyMovie) }
 
-  object EmptyMovie extends Movie("", "", "", "", Nil)
+  val EmptyMovie = Movie("", "", "", "", Nil)
 }
