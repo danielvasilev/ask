@@ -1,37 +1,23 @@
 package model.services
 
-import javax.inject.Inject
-
-import akka.http.scaladsl.model.Uri
 import play.api.libs.ws._
 
 import model.Utils.StringUtils
 import model.search.SearchTerms
-import model.services.data.Movie
+import model.services.data.{Movie, MovieQueryBuilder}
 import model.services.data.Movie.EmptyMovie
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-case class MovieDataService @Inject()(ws: WSClient) {
-  private val link = Uri("http://www.omdbapi.com")
-
-  def search(searchTerms: SearchTerms)(implicit ec: ExecutionContext): WSRequest = {
-    val query = Uri.Query(Map(
-      ("t", searchTerms.value.mkString(" ")),
-      ("apikey", "90eb0bb9")
-    ))
-    val url = link.withQuery(query)
-    ws.url(url.toString)
-  }
-
+case class MovieDataService(ws: WSClient) {
   def movieResult(responseMovie: Movie, movieDataService: MovieDataService)(implicit ec: ExecutionContext): Future[Seq[Movie]] = {
     val plotWords = responseMovie.plot.split(" ").filterNot(_.containsSpecialCharacters) :+ responseMovie.country
     val relatedSearchTerms = getRelatedSearchTerms(plotWords)
-    val relatedMoviesFutures = relatedSearchTerms.map { relatedTerms =>
-      val relatedSearchRequest = movieDataService.search(relatedTerms)
-      ServiceRequestExecutor[Movie](relatedSearchRequest).execute(Movie.fromJson)
+    val relatedMoviesFutures = relatedSearchTerms.map { searchTerms =>
+      val query = MovieQueryBuilder.search(searchTerms)
+      ServiceRequestExecutor[Movie](query, ws).execute(Movie.fromJson)
     }
     val moviesResult = Future.sequence(relatedMoviesFutures).map(_ :+ responseMovie)
     moviesResult.map { response =>
